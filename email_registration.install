@@ -5,7 +5,7 @@
  * Implementation of hook_install().
  */
 function email_registration_install() {
-  db_query("UPDATE {system} SET weight = 2 WHERE name = 'project'");
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'email_registration'");
 }
 
 

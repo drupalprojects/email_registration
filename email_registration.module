@@ -32,9 +32,15 @@ function email_registration_user($op, &$edit, &$account, $category = NULL) {
 function email_registration_form_alter($form_id, &$form) {
   switch ($form_id) {
     case 'user_register':
-      $form['name']['#type'] = 'hidden';
-      $form['name']['#value'] = user_password();
-      $form['mail']['#title'] = t('E-mail');
+      if (module_exists('profile')){
+        $form['account']['name']['#type'] = 'hidden';
+        $form['account']['name']['#value'] = user_password();
+        $form['account']['mail']['#title'] = t('E-mail');
+      } else {
+        $form['name']['#type'] = 'hidden';
+        $form['name']['#value'] = user_password();
+        $form['mail']['#title'] = t('E-mail');
+      }
       break;
 
     case 'user_pass':

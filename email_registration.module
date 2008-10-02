@@ -9,7 +9,7 @@
 function email_registration_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
     case 'insert':
-    $namenew = preg_replace('/@.*$/', '', $edit['mail']);
+    $namenew = variable_get('email_registration_eq_email',FALSE) ? $edit['mail'] : preg_replace('/@.*$/', '', $edit['mail']);
     // if username generated from email record already exists, append underscore and number eg:(chris_123)
     if (db_num_rows(db_query("SELECT uid FROM {users} WHERE uid != %d AND LOWER(name) = LOWER('%s')", $account->uid, $namenew)) > 0) {
       // find the next number available to append to the name
@@ -54,12 +54,12 @@ function email_registration_form_alter($form_id, &$form) {
       $form['name']['#title'] = t('E-mail');
       $form['name']['#description'] = 'Enter your e-mail address.';
       $form['pass']['#description'] = 'Enter the password that accompanies your e-mail.';
-      $form['#validate'] = array('email_registration_user_login_validate' => array()) + $form['#validate'];
+      $form['#validate'] = array('email_registration_user_login_validate' => array()) +  ($form['#validate'] ? $form['#validate'] : array());
       break;
 
     case 'user_login_block':
       $form['name']['#title'] = t('E-mail');
-      $form['#validate'] = array('email_registration_user_login_validate' => array()) + $form['#validate'];
+      $form['#validate'] = array('email_registration_user_login_validate' => array()) +  ($form['#validate'] ? $form['#validate'] : array());
       break;
   }  
 }
@@ -84,4 +84,48 @@ function email_registration_user_login_validate($form_id, $form_values, $form) {
       form_set_value($form['name'], $name);
     }
   }
+}
+
+
+/**
+* Implementation of hook_menu().
+*/
+function email_registration_menu($may_cache){
+	$items = array();
+	
+	if ($may_cache) {
+		$items[] = array(
+			'path' =>'admin/user/email_registration',
+			'title' => t("Email Registration"),
+			'description' => t('Change the way email_registration.module works'),
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('email_registration_admin')
+		);
+	}
+	return $items;
+}
+
+/**
+* The administration form
+*/
+function email_registration_admin() {
+  $form['eq_email'] = array(
+    '#type' => 'checkbox', 
+    '#title' => t('Make username equal to email'), 
+    '#description' => t("If This is checked, then the username field in the database will be the same as the user
+s email address. Otherwise, email_registration module will use its default username generation settings."),
+    '#default_value' => variable_get('email_registration_eq_email',FALSE),//default=FALSE as to not conflict with default settings
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#weight' => 10,
+  );
+  return $form;
+}
+
+
+function email_registration_admin_submit($form_id, $form_values) {
+  variable_set('email_registration_eq_email', $form_values['eq_email']);
+  drupal_set_message(t('Your options have been saved.'));
 }

@@ -9,6 +9,7 @@
 function email_registration_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
     case 'insert':
+    case 'update':
     $namenew = variable_get('email_registration_eq_email',FALSE) ? $edit['mail'] : preg_replace('/@.*$/', '', $edit['mail']);
     // if username generated from email record already exists, append underscore and number eg:(chris_123)
     if (db_num_rows(db_query("SELECT uid FROM {users} WHERE uid != %d AND LOWER(name) = LOWER('%s')", $account->uid, $namenew)) > 0) {

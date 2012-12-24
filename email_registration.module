@@ -13,6 +13,11 @@
 function email_registration_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
     case 'insert':
+      // Don't create a new username if one is already set.
+      if (!empty($account->name) && strpos($account->name, 'email_registration_') !== 0) {
+        return;
+      }
+
       // Other modules may implement hook_email_registration_name($edit, $account)
       // to generate a username (return a string to be used as the username, NULL
       // to have email_registration generate it)
@@ -64,14 +69,15 @@ function email_registration_user($op, &$edit, &$account, $category = NULL) {
 function email_registration_form_alter(&$form, $form_state, $form_id) {
   switch ($form_id) {
     case 'user_register':
+      $name = 'email_registration_' . user_password();
       if (isset($form['account']) && is_array($form['account'])) {
         $form['account']['name']['#type'] = 'hidden';
-        $form['account']['name']['#value'] = user_password();
+        $form['account']['name']['#value'] = $name;
         $form['account']['mail']['#title'] = t('E-mail');
       }
       else {
         $form['name']['#type'] = 'hidden';
-        $form['name']['#value'] = user_password();
+        $form['name']['#value'] = $name;
         $form['mail']['#title'] = t('E-mail');
       }
       $form['#submit'][] = 'custom_email_registration_name_submit';

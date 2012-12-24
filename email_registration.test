@@ -44,6 +44,8 @@ class EmailRegistrationTestCase extends DrupalWebTestCase {
 
     $this->drupalPost('/user/register', $register, t('Create new account'));
 
+    $this->drupalLogout();
+
     $login = array(
       'name' => $name . '@example.com',
       'pass' => $pass,

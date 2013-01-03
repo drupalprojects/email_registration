@@ -63,45 +63,48 @@ function email_registration_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Implementation of hook_form_alter().
- *
+ * Implementation of hook_form_FORMID_alter().
  */
-function email_registration_form_alter(&$form, $form_state, $form_id) {
-  switch ($form_id) {
-    case 'user_register':
-      $name = 'email_registration_' . user_password();
-      if (isset($form['account']) && is_array($form['account'])) {
-        $form['account']['name']['#type'] = 'hidden';
-        $form['account']['name']['#value'] = $name;
-        $form['account']['mail']['#title'] = t('E-mail');
-      }
-      else {
-        $form['name']['#type'] = 'hidden';
-        $form['name']['#value'] = $name;
-        $form['mail']['#title'] = t('E-mail');
-      }
-      $form['#submit'][] = 'custom_email_registration_name_submit';
-      break;
-
-    case 'user_pass':
-      $form['name']['#title'] = t('E-mail');
-      $form['name']['#description'] = t('Enter your e-mail address. You\'ll be sent a new password immediately.');
-      break;
-
-    case 'user_login':
-      $form['name']['#title'] = t('E-mail');
-      $form['name']['#description'] = t('Enter your e-mail address.');
-      $form['pass']['#description'] = t('Enter the password that accompanies your e-mail.');
-      $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
-      break;
-
-    case 'user_login_block':
-      $form['name']['#title'] = t('E-mail');
-      $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
-      break;
+function email_registration_form_user_register_alter(&$form, $form_state) {
+  $name = 'email_registration_' . user_password();
+  if (isset($form['account']) && is_array($form['account'])) {
+    $form['account']['name']['#type'] = 'hidden';
+    $form['account']['name']['#value'] = $name;
+    $form['account']['mail']['#title'] = t('E-mail');
   }
+  else {
+    $form['name']['#type'] = 'hidden';
+    $form['name']['#value'] = $name;
+    $form['mail']['#title'] = t('E-mail');
+  }
+  $form['#submit'][] = 'custom_email_registration_name_submit';
 }
 
+/**
+ * Implementation of hook_form_FORMID_alter().
+ */
+function email_registration_form_user_pass_alter(&$form, $form_state) {
+  $form['name']['#title'] = t('E-mail');
+  $form['name']['#description'] = t('Enter your e-mail address. You\'ll be sent a new password immediately.');
+}
+
+/**
+ * Implementation of hook_form_FORMID_alter().
+ */
+function email_registration_form_user_login_alter(&$form, $form_state) {
+  $form['name']['#title'] = t('E-mail');
+  $form['name']['#description'] = t('Enter your e-mail address.');
+  $form['pass']['#description'] = t('Enter the password that accompanies your e-mail.');
+  $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
+}
+
+/**
+ * Implementation of hook_form_FORMID_alter().
+ */
+function email_registration_form_user_login_block_alter(&$form, $form_state) {
+  $form['name']['#title'] = t('E-mail');
+  $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
+}
 
 /**
  * Custom submit handler to fix redirect for immediate logins

@@ -67,13 +67,14 @@ function email_registration_user($op, &$edit, &$account, $category = NULL) {
  */
 function email_registration_form_user_register_alter(&$form, $form_state) {
   $name = 'email_registration_' . user_password();
+  // TODO: document what this if statement is all about.
   if (isset($form['account']) && is_array($form['account'])) {
-    $form['account']['name']['#type'] = 'hidden';
+    $form['account']['name']['#type'] = 'value';
     $form['account']['name']['#value'] = $name;
     $form['account']['mail']['#title'] = t('E-mail');
   }
   else {
-    $form['name']['#type'] = 'hidden';
+    $form['name']['#type'] = 'value';
     $form['name']['#value'] = $name;
     $form['mail']['#title'] = t('E-mail');
   }

@@ -26,40 +26,80 @@ function email_registration_user($op, &$edit, &$account, $category = NULL) {
       $names = array_filter($names);
 
       if (empty($names)) {
-        // Default implementation of name generation
-        $namenew = preg_replace('/@.*$/', '', $edit['mail']);
-        // Remove unwanted characters
-        $namenew = preg_replace('/[^a-zA-Z0-9.-]/', '', $namenew);
-
-        // if username generated from email record already exists, append underscore and number eg:(chris_123)
-        if (db_result(db_query("SELECT count(*) FROM {users} WHERE uid <> %d AND LOWER(name) = LOWER('%s')", $account->uid, $namenew)) > 0) {
-          // find the next number available to append to the name
-          $sql = "SELECT SUBSTRING_INDEX(name,'_',-1) FROM {users} WHERE name REGEXP '%s' ORDER BY CAST(SUBSTRING_INDEX(name,'_',-1) AS UNSIGNED) DESC LIMIT 1";
-          $nameidx = db_result(db_query($sql, '^'. $namenew .'_[0-9]+$'));
-          $namenew .= '_'. ($nameidx + 1);
-        }
+        // Strip off everything after the @ sign.
+        $new_name = preg_replace('/@.*$/', '', $edit['mail']);
       }
       else {
         // One would expect a single implementation of the hook, but if there
-        // are multiples out there use the last one
-        $namenew = array_pop($names);
+        // are multiples out there use the last one.
+        $new_name = array_pop($names);
       }
 
-      // replace with generated username
-      if (db_query("UPDATE {users} SET name = '%s' WHERE uid = '%s'", $namenew, $account->uid)) {
-        $edit['name'] = $namenew; // update in the user array for access by other modules
-      }
+      // Ensure whatever name we have is unique.
+      $new_name = email_registration_unique_username($new_name, $account->uid);
 
-      // if email verification is off and a new user is the one creating account, log the new user in with correct name
+      // Replace with generated username
+      db_query("UPDATE {users} SET name = '%s' WHERE uid = '%s'", $new_name, $account->uid);
+      $edit['name'] = $new_name;
+
+      // If email verification is off and a new user is the one creating an account,
+      // log the new user in with his correct name.
       global $user;
       if (!variable_get('user_email_verification', 1) && $user->uid == 0) {
         $user = $account;
-        $user->name = $namenew;
+        $user->name = $new_name;
       }
-      $account->name = $namenew;
+      $account->name = $new_name;
       break;
   }
-  return;
+}
+
+/**
+ * Given a starting point for a Drupal username (e.g. the name portion of an
+ * email address) return a legal, unique Drupal username. This function is
+ * designed to work on the results of the /user/register or /admin/people/create
+ * forms which have already called user_validate_name, valid_email_address
+ * or a similar function. If your custom code is creating users, you should
+ * ensure that the email/name is already validated using something like that.
+ *
+ * @param $name
+ *   A name from which to base the final user name.  May contain illegal characters; these will be stripped.
+ *
+ * @param $uid
+ *   (optional) Uid to ignore when searching for unique user (e.g. if we update the username after the
+ *   {users} row is inserted)
+ *
+ * @return
+ *   A unique user name based on $name.
+ *
+ * @see user_validate_name().
+ *
+ */
+function email_registration_unique_username($name, $uid = 0) {
+  // Strip illegal characters.
+  $name = preg_replace('/[^\x{80}-\x{F7} a-zA-Z0-9@_.\'-]/', '', $name);
+
+  // Strip leading and trailing spaces.
+  $name = trim($name);
+
+  // Convert any other series of spaces to a single underscore.
+  $name = preg_replace('/ +/', '_', $name);
+
+  // If there's nothing left use a default.
+  $name = ('' === $name) ? t('user') : $name;
+
+  // Truncate to reasonable size.
+  $name = (drupal_strlen($name) > (USERNAME_MAX_LENGTH - 10)) ? drupal_substr($name, 0, USERNAME_MAX_LENGTH - 11) : $name;
+
+  // Iterate until we find a unique name.
+  $i = 0;
+  do {
+    $new_name = empty($i) ? $name : $name . '_' . $i;
+    $found = db_result(db_query_range("SELECT uid from {users} WHERE uid <> %d AND name = '%s'", $uid, $new_name, 0, 1));
+    $i++;
+  } while (!empty($found));
+
+  return $new_name;
 }
 
 /**

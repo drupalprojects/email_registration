@@ -126,7 +126,7 @@ function email_registration_form_user_register_alter(&$form, $form_state) {
  */
 function email_registration_form_user_pass_alter(&$form, $form_state) {
   $form['name']['#title'] = t('E-mail');
-  $form['name']['#description'] = t('Enter your e-mail address. You\'ll be sent a new password immediately.');
+  $form['name']['#description'] = t('A password reset message will be sent to your e-mail address.');
 }
 
 /**

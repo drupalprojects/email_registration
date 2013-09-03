@@ -2,7 +2,7 @@
 
 /**
  * @file
- * email registration simpletest
+ * Contains EmailRegistrationTestCase.
  */
 
 class EmailRegistrationTestCase extends DrupalWebTestCase {
@@ -64,6 +64,6 @@ class EmailRegistrationTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost('/user/register', $register, t('Create new account'));
     $this->assertRaw('Registration successful. You are now logged in.', t('User properly created, immediately logged in.'));
-
   }
+
 }

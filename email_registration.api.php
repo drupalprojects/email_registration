@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Documentation for email_registration API.
+ * Documentation for email_registration module API.
  */
 
 /**
@@ -17,12 +17,12 @@
  * to generate a username (return a string to be used as the username, NULL
  * to have email_registration generate it).
  *
- * @param $edit
+ * @param array $edit
  *   The array of form values submitted by the user.
- * @param $account
+ * @param object $account
  *   The user object on which the operation is being performed.
  *
- * @return
+ * @return string
  *   A string defining a generated username.
  */
 function hook_email_registration_name($edit, $account) {

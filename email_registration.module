@@ -44,7 +44,6 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
 
   $edit['name'] = $new_name;
   $account->name = $new_name;
-  return;
 }
 
 /**
@@ -55,18 +54,16 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
  * or a similar function. If your custom code is creating users, you should
  * ensure that the email/name is already validated using something like that.
  *
- * @param $name
+ * @param string $name
  *   A name from which to base the final user name.  May contain illegal characters; these will be stripped.
- *
- * @param $uid
+ * @param int $uid
  *   (optional) Uid to ignore when searching for unique user (e.g. if we update the username after the
  *   {users} row is inserted)
  *
- * @return
+ * @return string
  *   A unique user name based on $name.
  *
  * @see user_validate_name().
- *
  */
 function email_registration_unique_username($name, $uid = 0) {
   // Iterate until we find a unique name.
@@ -81,13 +78,17 @@ function email_registration_unique_username($name, $uid = 0) {
 }
 
 /**
- * Function to clean up username
+ * Function to clean up username.
+ *
  * e.g.
  *     Replace two or more spaces with a single underscore
  *     Strip illegal characters.
  *
- * @param username to be cleaned up
- * @return cleaned up username
+ * @param string $name
+ *   The username to be cleaned up.
+ *
+ * @return string
+ *   Cleaned up username.
  */
 function email_registration_cleanup_username($name) {
   // Strip illegal characters.
@@ -148,7 +149,7 @@ function email_registration_form_user_login_block_alter(&$form, &$form_state) {
  */
 function email_registration_user_login_validate($form, &$form_state) {
   if (isset($form_state['values']['name'])) {
-    // Keep the email value in form state for furher validation.
+    // Keep the email value in form state for further validation.
     $form_state['values']['email'] = $form_state['values']['name'];
     if ($name = db_query('SELECT name FROM {users} WHERE LOWER(mail) = LOWER(:name)', array(':name' => $form_state['values']['name']))->fetchField()) {
       $form_state['values']['name'] = $name;

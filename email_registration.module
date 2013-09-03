@@ -26,9 +26,6 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
     $new_name = preg_replace('/@.*$/', '', $edit['mail']);
     // Clean up the username.
     $new_name = email_registration_cleanup_username($new_name);
-
-    // Put uid on the end of the name.
-    $new_name = $new_name . '_' . $account->uid;
   }
   else {
     // One would expect a single implementation of the hook, but if there

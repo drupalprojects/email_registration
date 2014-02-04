@@ -20,7 +20,7 @@ class EmailRegistrationTestCase extends DrupalWebTestCase {
   /**
    * Implementation of setUp().
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp('email_registration');
 
     // Configure to allow set password.
@@ -30,7 +30,7 @@ class EmailRegistrationTestCase extends DrupalWebTestCase {
   /**
    * Test various behaviors for anonymous users.
    */
-  function testRegistration() {
+  public function testRegistration() {
     variable_set('user_register', USER_REGISTER_VISITORS);
     // Try to register a user.
     $name = $this->randomName();

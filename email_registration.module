@@ -47,23 +47,25 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
 }
 
 /**
- * Given a starting point for a Drupal username (e.g. the name portion of an
- * email address) return a legal, unique Drupal username. This function is
- * designed to work on the results of the /user/register or /admin/people/create
- * forms which have already called user_validate_name, valid_email_address
- * or a similar function. If your custom code is creating users, you should
- * ensure that the email/name is already validated using something like that.
+ * Given a starting point returns a legal, unique Drupal username.
+ *
+ * This function is designed to work on the results of the /user/register or
+ * /admin/people/create forms which have already called user_validate_name,
+ * valid_email_address or a similar function. If your custom code is creating
+ * users, you should ensure that the email/name is already validated using
+ * something like that.
  *
  * @param string $name
- *   A name from which to base the final user name.  May contain illegal characters; these will be stripped.
+ *   A name from which to base the final user name.  May contain illegal
+ *   characters; these will be stripped.
  * @param int $uid
- *   (optional) Uid to ignore when searching for unique user (e.g. if we update the username after the
- *   {users} row is inserted)
+ *   (optional) Uid to ignore when searching for unique user
+ *   (e.g. if we update the username after the {users} row is inserted)
  *
  * @return string
  *   A unique user name based on $name.
  *
- * @see user_validate_name().
+ * @see user_validate_name()
  */
 function email_registration_unique_username($name, $uid = 0) {
   // Iterate until we find a unique name.
@@ -144,6 +146,7 @@ function email_registration_form_user_login_block_alter(&$form, &$form_state) {
 
 /**
  * Form element validation handler for the user login form.
+ *
  * Allows users to authenticate by email, which is our preferred method.
  */
 function email_registration_user_login_validate($form, &$form_state) {

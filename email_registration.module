@@ -186,28 +186,32 @@ function email_registration_form_user_admin_settings_submit($form, &$form_state)
  * Allows users to authenticate by email, which is our preferred method.
  */
 function email_registration_user_login_validate($form, &$form_state) {
-  if (isset($form_state['values']['name'])) {
+  $name = NULL;
+  if (isset($form_state['values']['name']) && valid_email_address($form_state['values']['name'])) {
+    // Try to load the username matching the email, if any exists.
+    $name = db_select('users')
+    ->fields('users', array('name'))
+    ->condition('mail', db_like($form_state['values']['name']), 'LIKE')
+    ->execute()
+    ->fetchField();
+  }
+  // If the value is set, and a valid email, and a match was found, use it.
+  if (!empty($name)) {
+    // If the name matches an e-mail, assume that it's the desired name and
+    // set the username in the form values.
+    $form_state['values']['name'] = $name;
     // Keep the email value in form state for further validation.
     $form_state['values']['email'] = $form_state['values']['name'];
-
-    // First, assume that the given value is an e-mail, and try to load the
-    // username matching it, if any.
-    $name = db_query('SELECT name FROM {users} WHERE LOWER(mail) = LOWER(:name)', array(':name' => $form_state['values']['name']))->fetchField();
-    if (!empty($name)) {
-      // If the name matches an e-mail, assume that it's the desired name and
-      // set the username in the form values.
-      $form_state['values']['name'] = $name;
-    }
-    elseif (!variable_get('email_registration_login_with_username', TRUE)) {
-      // If no username was found for the e-mail, and registration with username
-      // is not allowed, unset the name from the form. This prevents
-      // user_login_authenticate_validate() from trying to load a user from the
-      // value as a username, which in turn causes user_login_final_validate()
-      // to set a form error telling the user that no account has been found.
-      // We have to set this to NULL rather than FALSE, because
-      // user_login_name_validate() uses isset() rather than empty().
-      $form_state['values']['name'] = NULL;
-    }
+  }
+  elseif (!variable_get('email_registration_login_with_username', TRUE)) {
+    // If no username was found for the e-mail, and registration with username
+    // is not allowed, unset the name from the form. This prevents
+    // user_login_authenticate_validate() from trying to load a user from the
+    // value as a username, which in turn causes user_login_final_validate()
+    // to set a form error telling the user that no account has been found.
+    // We have to set this to NULL rather than FALSE, because
+    // user_login_name_validate() uses isset() rather than empty().
+    $form_state['values']['name'] = NULL;
   }
 }
 

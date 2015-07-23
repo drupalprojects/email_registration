@@ -197,11 +197,12 @@ function email_registration_user_login_validate($form, &$form_state) {
   }
   // If the value is set, and a valid email, and a match was found, use it.
   if (!empty($name)) {
+    // Keep the email value in form state for further use/validation.
+    $form_state['values']['email'] = $form_state['values']['name'];
+
     // If the name matches an e-mail, assume that it's the desired name and
     // set the username in the form values.
     $form_state['values']['name'] = $name;
-    // Keep the email value in form state for further validation.
-    $form_state['values']['email'] = $form_state['values']['name'];
   }
   elseif (!variable_get('email_registration_login_with_username', TRUE)) {
     // If no username was found for the e-mail, and registration with username

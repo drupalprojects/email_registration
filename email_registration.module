@@ -61,7 +61,7 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
  *   A name from which to base the final user name.  May contain illegal
  *   characters; these will be stripped.
  * @param int $uid
- *   Uid to ignore when searching for unique user
+ *   (optional) Uid to ignore when searching for unique user
  *   (e.g. if we update the username after the {users} row is inserted)
  *
  * @return string
@@ -69,12 +69,18 @@ function email_registration_user_insert(&$edit, &$account, $category = NULL) {
  *
  * @see user_validate_name()
  */
-function email_registration_unique_username($name, $uid) {
+function email_registration_unique_username($name, $uid = NULL) {
   // Iterate until we find a unique name.
   $i = 0;
   do {
     $new_name = empty($i) ? $name : $name . '_' . $i;
-    $found = db_query_range("SELECT uid from {users} WHERE uid <> :uid AND name = :name", 0, 1, array(':uid' => $uid, ':name' => $new_name))->fetchAssoc();
+    if ($uid) {
+      $found = db_query_range("SELECT uid from {users} WHERE uid <> :uid AND name = :name", 0, 1, array(':uid' => $uid, ':name' => $new_name))->fetchAssoc();
+    }
+    else {
+      $found = db_query_range("SELECT uid from {users} WHERE name = :name", 0, 1, array(':name' => $new_name))->fetchAssoc();
+    }
+
     $i++;
   } while (!empty($found));
 

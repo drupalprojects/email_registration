@@ -115,7 +115,7 @@ function email_registration_cleanup_username($name) {
   $name = ('' === $name) ? t('user') : $name;
 
   // Truncate to a reasonable size.
-  $name = (Unicode::strlen($name) > (USERNAME_MAX_LENGTH - 10)) ? Unicode::substr($name, 0, USERNAME_MAX_LENGTH - 11) : $name;
+  $name = (Unicode::strlen($name) > (UserInterface::USERNAME_MAX_LENGTH - 10)) ? Unicode::substr($name, 0, UserInterface::USERNAME_MAX_LENGTH - 11) : $name;
   return $name;
 }
 

@@ -178,13 +178,6 @@ function email_registration_user_login_validate($form, FormStateInterface $form_
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function email_registration_form_user_form_alter(&$form, FormStateInterface $form_state) {
-  $form['account']['name']['#title'] = t('Display name');
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
 function email_registration_form_user_admin_settings_alter(&$form, FormStateInterface $form_state) {
   $config = \Drupal::config('email_registration.settings');
   $form['registration_cancellation']['login_with_username'] = [
